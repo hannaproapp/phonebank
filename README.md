@@ -80,20 +80,19 @@ The schema is created on first database connection. There is no migration step.
 With no mail settings, "Send link" shows the link on screen for the admin to copy and send by
 hand. Two ways to have the app send it instead:
 
-**SMTP (Gmail / Google Workspace).** No DNS changes: Google already publishes SPF and DKIM for
-the sending domain. Needs an app password, which requires 2FA on the account.
+All of them use `MAIL_FROM`. They are tried in the order below, and the HTTPS ones come first
+because most managed hosts block outbound SMTP.
 
-```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_USER=you@yourdomain.com
-SMTP_PASS=<16-character app password>
-MAIL_FROM=Phone Bank <you@yourdomain.com>
-```
+**SendGrid.** No DNS. Verify the `MAIL_FROM` address under Single Sender Verification, create a
+Mail Send API key, set `SENDGRID_API_KEY`. Free tier is 100 emails a day. Sending from an
+address on a domain you don't control (a gmail.com address, say) will fail DMARC alignment, so
+expect some mail to land in spam.
 
-Google Workspace allows roughly 2,000 recipients a day, far above what this needs.
+**Resend.** Set `RESEND_API_KEY`. Requires a verified sending domain, meaning DKIM, SPF and MX
+records at your DNS provider. Best deliverability of the three.
 
-**Resend.** Set `RESEND_API_KEY` and `MAIL_FROM`. Requires a verified sending domain, so it
-means adding DKIM, SPF and MX records at your DNS provider.
+**SMTP.** Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`. Gmail and Google Workspace
+work with an app password. Note that Railway and most other managed hosts block outbound ports
+465 and 587, so this times out there. It is here for self-hosted deployments.
 
-SMTP wins if both are set. Login links are single-use and expire after 14 days.
+Login links are single-use and expire after 14 days.

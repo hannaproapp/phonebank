@@ -39,21 +39,69 @@ function loginEmailText(link: string, campaign?: string) {
 /**
  * Sends the magic link.
  *
- * Two backends, tried in order:
- *   1. SMTP  — set SMTP_HOST/PORT/USER/PASS. Gmail and Google Workspace work with
- *      an app password, and need no DNS changes because Google already publishes
- *      SPF and DKIM for the sending domain.
- *   2. Resend — set RESEND_API_KEY. Requires a verified domain.
+ * Three backends, tried in order. The HTTPS ones come first because most PaaS
+ * hosts (Railway included) block outbound SMTP ports entirely.
  *
- * With neither configured, the caller shows the link on screen for the admin to
+ *   1. SendGrid — set SENDGRID_API_KEY and MAIL_FROM. MAIL_FROM must be an
+ *      address you verified under Single Sender Verification, which needs no
+ *      DNS changes.
+ *   2. Resend — set RESEND_API_KEY and MAIL_FROM. Requires a verified domain.
+ *   3. SMTP — set SMTP_HOST/PORT/USER/PASS. Only works where outbound SMTP is
+ *      permitted, which rules out most managed hosts.
+ *
+ * With none configured, the caller shows the link on screen for the admin to
  * pass along by hand.
  */
+
+function parseFrom(value: string): { email: string; name?: string } {
+  const m = value.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+  if (m) return { name: m[1] || undefined, email: m[2].trim() };
+  return { email: value.trim() };
+}
 export async function sendLoginEmail(
   to: string,
   link: string,
   campaign?: string,
 ): Promise<SendResult> {
   const subject = campaign ? `Your ${campaign} call list` : "Your phone bank call list";
+  const text = loginEmailText(link, campaign);
+  const html = loginEmailHtml(link, campaign);
+
+  const sendgridKey = env("SENDGRID_API_KEY");
+  if (sendgridKey) {
+    const configured = env("MAIL_FROM");
+    if (!configured) {
+      return { sent: false, link, error: "MAIL_FROM is not set" };
+    }
+    try {
+      const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sendgridKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: to }] }],
+          from: parseFrom(configured),
+          subject,
+          content: [
+            { type: "text/plain", value: text },
+            { type: "text/html", value: html },
+          ],
+        }),
+      });
+      if (res.ok) return { sent: true, link };
+      // SendGrid puts the useful part in the body, not the status line. The
+      // common failure is a from-address that was never verified.
+      const body = await res.text();
+      const detail = body.slice(0, 300) || `HTTP ${res.status}`;
+      console.error("[mail] sendgrid rejected:", res.status, detail);
+      return { sent: false, link, error: `SendGrid ${res.status}: ${detail}` };
+    } catch (e) {
+      return { sent: false, link, error: (e as Error).message };
+    }
+  }
+
   const host = env("SMTP_HOST");
   const user = env("SMTP_USER");
   const pass = env("SMTP_PASS");
@@ -85,8 +133,8 @@ export async function sendLoginEmail(
         from: env("MAIL_FROM") || user,
         to,
         subject,
-        text: loginEmailText(link, campaign),
-        html: loginEmailHtml(link, campaign),
+        text,
+        html,
       });
       return { sent: true, link };
     } catch (e) {
@@ -105,8 +153,8 @@ export async function sendLoginEmail(
           from: env("MAIL_FROM") || "Phone Bank <onboarding@resend.dev>",
           to: [to],
           subject,
-          text: loginEmailText(link, campaign),
-          html: loginEmailHtml(link, campaign),
+          text,
+          html,
         }),
       });
       if (res.ok) return { sent: true, link };
