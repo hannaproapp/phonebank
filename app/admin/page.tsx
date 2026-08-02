@@ -49,8 +49,8 @@ export default async function AdminHome() {
           <Link key={c.id} href={`/admin/${c.id}`} className="card block p-4">
             <div className="font-semibold">{c.name}</div>
             <div className="text-sm text-slate-500">
-              {c.candidate_name && <>{c.candidate_name} Â· </>}
-              {c.lists} list{Number(c.lists) === 1 ? "" : "s"} Â· {c.volunteers} volunteer
+              {c.candidate_name && <>{c.candidate_name} · </>}
+              {c.lists} list{Number(c.lists) === 1 ? "" : "s"} · {c.volunteers} volunteer
               {Number(c.volunteers) === 1 ? "" : "s"}
             </div>
           </Link>
