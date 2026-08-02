@@ -4,13 +4,6 @@ import { currentUser, campaignRole } from "@/lib/auth";
 import { q, q1 } from "@/lib/db";
 import { CANVASSING_FOR } from "@/lib/fields";
 import { Shell, Field } from "../../components/Shell";
-import {
-  addMember,
-  createList,
-  removeMember,
-  sendMemberLink,
-  updateCampaign,
-} from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -126,7 +119,8 @@ export default async function CampaignPage({
         </div>
       </section>
 
-      <form action={createList} className="card mt-6 space-y-4 p-5">
+      <form method="post" action="/api/do" encType="multipart/form-data" className="card mt-6 space-y-4 p-5">
+        <input type="hidden" name="op" value="createList" />
         <h2 className="font-semibold">Upload a call list</h2>
         <input type="hidden" name="campaign_id" value={campaignId} />
         <Field label="List name">
@@ -169,12 +163,14 @@ export default async function CampaignPage({
                 </div>
               </div>
               <div className="flex shrink-0 gap-2">
-                <form action={sendMemberLink}>
+                <form method="post" action="/api/do">
+                  <input type="hidden" name="op" value="sendMemberLink" />
                   <input type="hidden" name="campaign_id" value={campaignId} />
                   <input type="hidden" name="email" value={m.email} />
                   <button className="btn text-sm">Send link</button>
                 </form>
-                <form action={removeMember}>
+                <form method="post" action="/api/do">
+                  <input type="hidden" name="op" value="removeMember" />
                   <input type="hidden" name="campaign_id" value={campaignId} />
                   <input type="hidden" name="user_id" value={m.user_id} />
                   <button className="btn text-sm text-red-600">Remove</button>
@@ -187,7 +183,8 @@ export default async function CampaignPage({
           )}
         </div>
 
-        <form action={addMember} className="card mt-4 space-y-4 p-5">
+        <form method="post" action="/api/do" className="card mt-4 space-y-4 p-5">
+          <input type="hidden" name="op" value="addMember" />
           <h3 className="font-semibold">Add a person</h3>
           <input type="hidden" name="campaign_id" value={campaignId} />
           <Field label="Name">
@@ -210,7 +207,8 @@ export default async function CampaignPage({
 
       <details className="mt-8">
         <summary className="label cursor-pointer">Campaign settings</summary>
-        <form action={updateCampaign} className="card mt-3 space-y-4 p-5">
+        <form method="post" action="/api/do" className="card mt-3 space-y-4 p-5">
+          <input type="hidden" name="op" value="updateCampaign" />
           <input type="hidden" name="campaign_id" value={campaignId} />
           <Field label="Campaign name">
             <input className="input" name="name" defaultValue={campaign.name} />

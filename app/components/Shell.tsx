@@ -25,8 +25,15 @@ export function Shell({
         </div>
       </header>
       {children}
-      <footer className="mt-12 text-center text-xs text-slate-400">
-        <Link href="/logout">Sign out</Link>
+      {/* A form, not a link. Next prefetches links, and a prefetch of a GET
+          sign-out route silently destroys the session of anyone loading a page. */}
+      <footer className="mt-12 text-center">
+        <form method="post" action="/api/do">
+          <input type="hidden" name="op" value="logout" />
+          <button type="submit" className="text-xs text-slate-400 underline">
+            Sign out
+          </button>
+        </form>
       </footer>
     </div>
   );

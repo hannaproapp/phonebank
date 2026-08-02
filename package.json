@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
-    "start": "next start -H 0.0.0.0"
+    "start": "next start -H 0.0.0.0",
+    "test:e2e": "node test/e2e.js"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4",

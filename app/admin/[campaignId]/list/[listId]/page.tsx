@@ -5,7 +5,6 @@ import { q, q1 } from "@/lib/db";
 import { CANVASSING_FOR } from "@/lib/fields";
 import { EXPORT_FILLED_COLUMNS } from "@/lib/exportCsv";
 import { Shell, Field } from "../../../../components/Shell";
-import { assignContacts, unassignVolunteer, updateList, deleteList } from "../../../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -152,7 +151,8 @@ export default async function ListPage({
                   {v.called}/{v.assigned} called · {v.contacted} reached
                 </div>
               </div>
-              <form action={unassignVolunteer} className="shrink-0">
+              <form method="post" action="/api/do" className="shrink-0">
+                <input type="hidden" name="op" value="unassignVolunteer" />
                 <input type="hidden" name="list_id" value={listId} />
                 <input type="hidden" name="user_id" value={v.user_id} />
                 <button className="btn text-sm">Return unworked</button>
@@ -164,7 +164,8 @@ export default async function ListPage({
           )}
         </div>
 
-        <form action={assignContacts} className="card mt-4 space-y-4 p-5">
+        <form method="post" action="/api/do" className="card mt-4 space-y-4 p-5">
+          <input type="hidden" name="op" value="assignContacts" />
           <h3 className="font-semibold">Assign contacts</h3>
           <input type="hidden" name="list_id" value={listId} />
           <Field label="Volunteer">
@@ -194,7 +195,8 @@ export default async function ListPage({
 
       <details className="mt-8">
         <summary className="label cursor-pointer">List settings</summary>
-        <form action={updateList} className="card mt-3 space-y-4 p-5">
+        <form method="post" action="/api/do" className="card mt-3 space-y-4 p-5">
+          <input type="hidden" name="op" value="updateList" />
           <input type="hidden" name="list_id" value={listId} />
           <Field label="List name">
             <input className="input" name="name" defaultValue={list.name} />
@@ -217,7 +219,8 @@ export default async function ListPage({
             Save
           </button>
         </form>
-        <form action={deleteList} className="mt-3">
+        <form method="post" action="/api/do" className="mt-3">
+          <input type="hidden" name="op" value="deleteList" />
           <input type="hidden" name="list_id" value={listId} />
           <button className="btn text-sm text-red-600">Delete list and all results</button>
         </form>

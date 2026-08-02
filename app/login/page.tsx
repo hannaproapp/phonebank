@@ -1,4 +1,3 @@
-import { requestLink } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +20,8 @@ export default async function Login({
         Enter the email your campaign added you with. We&apos;ll send you a link.
       </p>
 
-      <form action={requestLink} className="card mt-6 space-y-3 p-5">
+      <form method="post" action="/api/do" className="card mt-6 space-y-3 p-5">
+        <input type="hidden" name="op" value="requestLink" />
         <label className="label block">Email</label>
         <input
           className="input"

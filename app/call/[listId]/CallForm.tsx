@@ -8,7 +8,6 @@ import {
   VOTE_PLAN,
   CONTACTED,
 } from "@/lib/fields";
-import { submitCall, skipContact } from "../actions";
 
 function Choice({
   name,
@@ -60,31 +59,15 @@ export function CallForm({
   const [plan, setPlan] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const contacted = disposition === CONTACTED;
   const wrongNumber = disposition === "Wrong Number";
   const canSave = disposition !== "" && (!contacted || (awareness && support && plan));
 
+  // A native post, not a Server Action: action requests travel over fetch and
+  // reached production with no cookies, so every save failed authentication.
   return (
-    <form
-      action={async (fd) => {
-        setSaving(true);
-        try {
-          await submitCall(fd);
-          // Belt and braces: the parent also keys this component by contact id.
-          setDisposition("");
-          setAwareness("");
-          setSupport("");
-          setPlan("");
-          setNewPhone("");
-          setNotes("");
-        } finally {
-          setSaving(false);
-        }
-      }}
-      className="space-y-6"
-    >
+    <form method="post" action="/api/do" className="space-y-6">
       <input type="hidden" name="contact_id" value={contactId} />
 
       <section className="space-y-2">
@@ -162,21 +145,18 @@ export function CallForm({
         <button
           className="btn btn-primary btn-lg disabled:opacity-40"
           type="submit"
-          disabled={!canSave || saving}
+          name="op"
+          value="submitCall"
+          disabled={!canSave}
         >
-          {saving ? "Saving..." : "Save and next"}
+          Save and next
         </button>
         {contacted && !canSave && (
           <p className="text-center text-xs text-slate-500">
             Answer all three questions to save.
           </p>
         )}
-        <button
-          className="btn w-full text-sm text-slate-500"
-          type="submit"
-          formAction={skipContact}
-          disabled={saving}
-        >
+        <button className="btn w-full text-sm text-slate-500" type="submit" name="op" value="skipContact">
           Skip for now
         </button>
       </div>

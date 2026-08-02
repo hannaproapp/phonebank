@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { q } from "@/lib/db";
 import { Shell, Field } from "../components/Shell";
-import { createCampaign } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +55,8 @@ export default async function AdminHome() {
       </div>
 
       {user.is_super && (
-        <form action={createCampaign} className="card mt-8 space-y-4 p-5">
+        <form method="post" action="/api/do" className="card mt-8 space-y-4 p-5">
+          <input type="hidden" name="op" value="createCampaign" />
           <h2 className="font-semibold">New campaign</h2>
           <Field label="Campaign name">
             <input className="input" name="name" required placeholder="Vaziri for Cranston" />

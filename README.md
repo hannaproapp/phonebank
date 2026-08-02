@@ -102,3 +102,17 @@ went out, so a delivery failure never blocks a volunteer. The public login page 
 a link: anyone can type anyone's address there, so showing it would be a way to sign in as
 another user. `LOGIN_SHOW_LINK=on` overrides that for bootstrapping the first admin, and
 should be turned off once mail works.
+
+## Tests
+
+`test/e2e.js` drives a real browser through the whole loop: login, campaign, upload, assign,
+five calls with different dispositions, export, then it parses the exported CSV and checks the
+column set and values.
+
+```bash
+npm run build && npm run start   # in one shell
+npm run test:e2e                 # in another
+```
+
+Run it against a **production build**, not `next dev`. Two of the worst bugs this app has had
+only appeared in production builds and passed cleanly in dev.
