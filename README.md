@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Phone Bank
 
-## Getting Started
+Volunteer call lists and canvassing results, feeding the GHL Canvassing custom object.
 
-First, run the development server:
+Interim tool: volunteers call from their own phones. No dialer, no Twilio, no campaign
+caller ID. The app hands out contacts, captures the result, and produces an import file.
+
+## Roles
+
+- **Super admin** — sees every campaign. Creates campaigns. Seeded from `SUPER_ADMIN_EMAIL`.
+- **Campaign admin** — one campaign. Adds volunteers, uploads lists, assigns contacts, exports.
+- **Volunteer** — sees only the contacts assigned to them, across any campaign they belong to.
+
+## Volunteer flow
+
+Magic link login → assigned lists as cards → contact card with script → tap the number to
+dial from their own phone → pick a disposition → if the voter answered, three questions →
+save → next contact.
+
+Answered gives the full canvass form. Anything else gives a short form.
+
+## Admin flow
+
+1. In GHL, add **Contact ID** to the Smart List view (Manage Fields), then export.
+2. Upload that CSV here. Rows without a Contact ID or a phone number are skipped and counted.
+3. Paste a call script.
+4. Assign a block of contacts to each volunteer.
+5. When calls are in, hit **Download new results**.
+
+The export is incremental. Each download marks its rows exported, so the next one only
+contains new results and you never double-import. **Download everything** re-exports all
+results without changing the marks.
+
+## Export format
+
+The file is the Canvassing template's 125 columns verbatim, with the Contacts lookup column
+prepended (name it in campaign settings to match your Canvassing object's lookup field).
+
+Populated per row:
+
+| Column | Source |
+| --- | --- |
+| *lookup column* | GHL Contact ID from the uploaded list |
+| `Canvass Attempt Name` | generated, `Phone - Last, First - MM/DD/YYYY` |
+| `Disposition (Phone)` | volunteer's pick |
+| `Disposition` | `Phone - ` + the above |
+| `Candidate Awareness`, `Current Support Level`, `Vote Plan` | only when Voter Contacted |
+| `Phone — Correct?`, `→ New Phone Number` | Correct when reached, Incorrect on Wrong Number |
+| `Internal Notes` | volunteer's notes |
+| `Contact Method`, `Purpose of Contact`, `Canvassing For`, `Canvasser`, `Canvasser Contact Name`, `Contact Time`, `Form Submission Time` | auto-filled |
+
+All other template columns are emitted blank so GHL's field mapping stays 1:1 by header name.
+
+Picklist values must match the GHL dropdowns character for character. They live in
+`lib/fields.ts`. If a dropdown changes in GHL, change it there.
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in DATABASE_URL and SESSION_SECRET
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The schema is created on first database connection. There is no migration step.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy on Railway
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Add a Postgres database to the project.
+2. Add this repo as a service.
+3. Set variables:
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+   - `SESSION_SECRET` = a long random string
+   - `SUPER_ADMIN_EMAIL` = your email
+   - `APP_URL` = the generated domain, once you have it
+4. Generate a domain.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without `RESEND_API_KEY`, "Send link" shows the magic link on screen for the admin to copy
+and send by text or email. Set the key to have the app email it directly.
