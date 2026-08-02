@@ -4,6 +4,7 @@ import { currentUser, campaignRole } from "@/lib/auth";
 import { q, q1 } from "@/lib/db";
 import { CANVASSING_FOR } from "@/lib/fields";
 import { Shell, Field } from "../../components/Shell";
+import { MyCallsLink } from "../../components/MyCallsLink";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,11 @@ export default async function CampaignPage({
   );
 
   return (
-    <Shell title={campaign.name} back={{ href: "/admin", label: "Campaigns" }}>
+    <Shell
+      title={campaign.name}
+      back={{ href: "/admin", label: "Campaigns" }}
+      right={<MyCallsLink />}
+    >
       {sp.uploaderr === "nocontactid" && (
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
           That file has no Contact ID column. Add Contact ID to the Smart List view in HannaPro, export
@@ -159,7 +164,7 @@ export default async function CampaignPage({
               <div className="min-w-0">
                 <div className="truncate font-medium">{m.name || m.email}</div>
                 <div className="truncate text-xs text-slate-500">
-                  {m.email} · {m.role}
+                  {m.email} Â· {m.role}
                 </div>
               </div>
               <div className="flex shrink-0 gap-2">
