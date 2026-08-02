@@ -96,3 +96,9 @@ work with an app password. Note that Railway and most other managed hosts block 
 465 and 587, so this times out there. It is here for self-hosted deployments.
 
 Login links are single-use and expire after 14 days.
+
+The campaign page always shows an invite link after "Send link", whether or not the email
+went out, so a delivery failure never blocks a volunteer. The public login page never reveals
+a link: anyone can type anyone's address there, so showing it would be a way to sign in as
+another user. `LOGIN_SHOW_LINK=on` overrides that for bootstrapping the first admin, and
+should be turned off once mail works.

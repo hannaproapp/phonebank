@@ -19,7 +19,13 @@ export default async function CampaignPage({
   searchParams,
 }: {
   params: Promise<{ campaignId: string }>;
-  searchParams: Promise<{ sent?: string; link?: string; uploaderr?: string; mailerr?: string }>;
+  searchParams: Promise<{
+    sent?: string;
+    invited?: string;
+    link?: string;
+    uploaderr?: string;
+    mailerr?: string;
+  }>;
 }) {
   const { campaignId } = await params;
   const sp = await searchParams;
@@ -73,20 +79,19 @@ export default async function CampaignPage({
           No usable rows. Every row needs a Contact ID and a phone number.
         </p>
       )}
-      {sp.sent && (
-        <p className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-          Link emailed to {sp.sent}.
-        </p>
-      )}
       {sp.link && (
-        <div className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4 text-sm">
           <p className="font-semibold">
-            {sp.mailerr
-              ? "Email failed to send. Copy this link to the volunteer:"
-              : "Email not configured. Copy this link to the volunteer:"}
+            Link for {sp.invited}
+            {sp.sent === "1" ? " (emailed)" : " (not emailed)"}
           </p>
-          {sp.mailerr && <p className="mt-1 text-xs">{sp.mailerr}</p>}
-          <p className="mt-1 break-all">{sp.link}</p>
+          {sp.mailerr && (
+            <p className="mt-1 text-xs text-red-700">Email failed: {sp.mailerr}</p>
+          )}
+          <p className="mt-2 break-all rounded bg-slate-50 p-2 font-mono text-xs">{sp.link}</p>
+          <p className="mt-2 text-xs text-slate-500">
+            Works once. Text it to them if the email doesn&apos;t arrive.
+          </p>
         </div>
       )}
 

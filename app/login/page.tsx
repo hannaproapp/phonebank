@@ -5,7 +5,13 @@ export const dynamic = "force-dynamic";
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; err?: string; link?: string; used?: string; mailerr?: string }>;
+  searchParams: Promise<{
+    sent?: string;
+    err?: string;
+    link?: string;
+    used?: string;
+    undelivered?: string;
+  }>;
 }) {
   const sp = await searchParams;
   return (
@@ -35,12 +41,15 @@ export default async function Login({
           Check your email for the link.
         </p>
       )}
+      {sp.undelivered === "1" && (
+        <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+          We couldn&apos;t send that email. Ask your campaign admin to send you a link
+          directly.
+        </p>
+      )}
       {sp.link && (
         <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          <p className="font-semibold">
-            {sp.mailerr ? "Email failed to send." : "Email is not configured on this install."}
-          </p>
-          {sp.mailerr && <p className="mt-1 text-xs">{sp.mailerr}</p>}
+          <p className="font-semibold">Email is not configured on this install.</p>
           <p className="mt-1 break-all">{sp.link}</p>
         </div>
       )}

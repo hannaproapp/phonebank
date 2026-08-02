@@ -75,10 +75,14 @@ export async function sendMemberLink(formData: FormData) {
   ]);
   const link = await issueLoginLink(email, await baseUrl());
   if (!link) return;
+  // Always give the admin the link. They are authorised to invite this person,
+  // and email is the least reliable part of the chain: without this, a silent
+  // delivery failure leaves a volunteer with no way in.
   const res = await sendLoginEmail(email, link, campaign?.name);
-  if (res.sent) redirect(`/admin/${campaignId}?sent=${encodeURIComponent(email)}`);
-  const err = res.error ? `&mailerr=${encodeURIComponent(res.error)}` : "";
-  redirect(`/admin/${campaignId}?link=${encodeURIComponent(link)}${err}`);
+  const params = new URLSearchParams({ link, invited: email });
+  if (res.sent) params.set("sent", "1");
+  if (res.error) params.set("mailerr", res.error);
+  redirect(`/admin/${campaignId}?${params.toString()}`);
 }
 
 export async function removeMember(formData: FormData) {
