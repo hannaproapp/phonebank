@@ -1,5 +1,5 @@
 import "server-only";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import { randomBytes } from "crypto";
 import { q, q1 } from "./db";
@@ -44,7 +44,24 @@ export async function currentUser(): Promise<SessionUser | null> {
   const c = await cookies();
   const token = c.get(COOKIE)?.value;
   if (!token) {
-    if (env("AUTH_DEBUG")) console.log("[auth] no cookie; names:", c.getAll().map((x) => x.name));
+    if (env("AUTH_DEBUG")) {
+      const h = await headers();
+      console.log(
+        "[auth] no session cookie.",
+        JSON.stringify({
+          cookieNames: c.getAll().map((x) => x.name),
+          rawCookieHeader: h.get("cookie"),
+          host: h.get("host"),
+          forwardedHost: h.get("x-forwarded-host"),
+          forwardedProto: h.get("x-forwarded-proto"),
+          origin: h.get("origin"),
+          referer: h.get("referer"),
+          nextAction: h.get("next-action") ? "yes" : "no",
+          secFetchSite: h.get("sec-fetch-site"),
+          secFetchMode: h.get("sec-fetch-mode"),
+        }),
+      );
+    }
     return null;
   }
   try {
