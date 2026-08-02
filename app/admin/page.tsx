@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { q } from "@/lib/db";
 import { Shell, Field } from "../components/Shell";
+import { MyCallsLink } from "../components/MyCallsLink";
 
 export const dynamic = "force-dynamic";
 
@@ -36,15 +37,20 @@ export default async function AdminHome() {
   return (
     <Shell
       title="Campaigns"
-      right={<span className="text-xs text-slate-500">{user.email}</span>}
+      right={
+        <>
+          <MyCallsLink />
+          <span className="text-xs text-slate-500">{user.email}</span>
+        </>
+      }
     >
       <div className="space-y-3">
         {campaigns.map((c) => (
           <Link key={c.id} href={`/admin/${c.id}`} className="card block p-4">
             <div className="font-semibold">{c.name}</div>
             <div className="text-sm text-slate-500">
-              {c.candidate_name && <>{c.candidate_name} · </>}
-              {c.lists} list{Number(c.lists) === 1 ? "" : "s"} · {c.volunteers} volunteer
+              {c.candidate_name && <>{c.candidate_name} Â· </>}
+              {c.lists} list{Number(c.lists) === 1 ? "" : "s"} Â· {c.volunteers} volunteer
               {Number(c.volunteers) === 1 ? "" : "s"}
             </div>
           </Link>
