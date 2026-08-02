@@ -164,7 +164,7 @@ export default async function CampaignPage({
               <div className="min-w-0">
                 <div className="truncate font-medium">{m.name || m.email}</div>
                 <div className="truncate text-xs text-slate-500">
-                  {m.email} Â· {m.role}
+                  {m.email} · {m.role}
                 </div>
               </div>
               <div className="flex shrink-0 gap-2">
