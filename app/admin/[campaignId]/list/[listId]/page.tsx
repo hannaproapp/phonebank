@@ -153,7 +153,7 @@ export default async function ListPage({
               <div className="min-w-0">
                 <div className="truncate font-medium">{v.name || v.email}</div>
                 <div className="text-xs text-slate-500">
-                  {v.called}/{v.assigned} called Â· {v.contacted} reached
+                  {v.called}/{v.assigned} called · {v.contacted} reached
                 </div>
               </div>
               <form method="post" action="/api/do" className="shrink-0">
