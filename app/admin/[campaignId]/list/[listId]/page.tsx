@@ -5,6 +5,7 @@ import { q, q1 } from "@/lib/db";
 import { CANVASSING_FOR } from "@/lib/fields";
 import { EXPORT_FILLED_COLUMNS } from "@/lib/exportCsv";
 import { Shell, Field } from "../../../../components/Shell";
+import { MyCallsLink } from "../../../../components/MyCallsLink";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +82,11 @@ export default async function ListPage({
   const pct = Number(stats!.total) ? (Number(stats!.done) / Number(stats!.total)) * 100 : 0;
 
   return (
-    <Shell title={list.name} back={{ href: `/admin/${campaignId}`, label: "Campaign" }}>
+    <Shell
+      title={list.name}
+      back={{ href: `/admin/${campaignId}`, label: "Campaign" }}
+      right={<MyCallsLink />}
+    >
       {sp.loaded && (
         <p className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-800">
           Loaded {sp.loaded} contacts.
@@ -148,7 +153,7 @@ export default async function ListPage({
               <div className="min-w-0">
                 <div className="truncate font-medium">{v.name || v.email}</div>
                 <div className="text-xs text-slate-500">
-                  {v.called}/{v.assigned} called · {v.contacted} reached
+                  {v.called}/{v.assigned} called Â· {v.contacted} reached
                 </div>
               </div>
               <form method="post" action="/api/do" className="shrink-0">
