@@ -26,9 +26,10 @@ export async function createSession(userId: string) {
   c.set(COOKIE, jwt, {
     httpOnly: true,
     sameSite: "lax",
-    // Railway serves HTTPS, so secure cookies are the default in production.
-    // COOKIE_SECURE=off exists for running a production build over plain http locally.
-    secure: env("COOKIE_SECURE") === "off" ? false : env("NODE_ENV") === "production",
+    // Secure by default. Deployments are HTTPS; COOKIE_SECURE=off is the escape
+    // hatch for running over plain http locally. Deliberately not keyed off
+    // NODE_ENV, so a change to how the host sets it can't silently drop the flag.
+    secure: env("COOKIE_SECURE") !== "off",
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   });
