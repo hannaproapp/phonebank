@@ -99,21 +99,4 @@ export async function issueLoginLink(email: string, baseUrl: string) {
   return `${baseUrl.replace(/\/$/, "")}/auth/${token}`;
 }
 
-export async function sendLoginEmail(email: string, link: string, campaign?: string) {
-  const key = env("RESEND_API_KEY");
-  if (!key) return { sent: false as const, link };
-  const from = env("RESEND_FROM") || "Phone Bank <onboarding@resend.dev>";
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from,
-      to: [email],
-      subject: campaign ? `Your ${campaign} phone bank link` : "Your phone bank link",
-      html: `<p>Tap to open your call list. This link is yours, don't forward it.</p>
-             <p><a href="${link}" style="display:inline-block;padding:12px 20px;background:#1d4ed8;color:#fff;border-radius:8px;text-decoration:none">Open my call list</a></p>
-             <p style="color:#666;font-size:12px">${link}</p>`,
-    }),
-  });
-  return { sent: res.ok as boolean, link };
-}
+export { sendLoginEmail } from "./mail";

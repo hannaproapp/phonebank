@@ -20,5 +20,6 @@ export async function requestLink(formData: FormData) {
   if (!link) redirect("/login?err=1");
   const res = await sendLoginEmail(email, link);
   if (res.sent) redirect("/login?sent=1");
-  redirect(`/login?link=${encodeURIComponent(link)}`);
+  const err = res.error ? `&mailerr=${encodeURIComponent(res.error)}` : "";
+  redirect(`/login?link=${encodeURIComponent(link)}${err}`);
 }

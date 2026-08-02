@@ -75,5 +75,25 @@ The schema is created on first database connection. There is no migration step.
    - `APP_URL` = the generated domain, once you have it
 4. Generate a domain.
 
-Without `RESEND_API_KEY`, "Send link" shows the magic link on screen for the admin to copy
-and send by text or email. Set the key to have the app email it directly.
+## Emailing the magic links
+
+With no mail settings, "Send link" shows the link on screen for the admin to copy and send by
+hand. Two ways to have the app send it instead:
+
+**SMTP (Gmail / Google Workspace).** No DNS changes: Google already publishes SPF and DKIM for
+the sending domain. Needs an app password, which requires 2FA on the account.
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=you@yourdomain.com
+SMTP_PASS=<16-character app password>
+MAIL_FROM=Phone Bank <you@yourdomain.com>
+```
+
+Google Workspace allows roughly 2,000 recipients a day, far above what this needs.
+
+**Resend.** Set `RESEND_API_KEY` and `MAIL_FROM`. Requires a verified sending domain, so it
+means adding DKIM, SPF and MX records at your DNS provider.
+
+SMTP wins if both are set. Login links are single-use and expire after 14 days.

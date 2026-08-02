@@ -19,7 +19,7 @@ export default async function CampaignPage({
   searchParams,
 }: {
   params: Promise<{ campaignId: string }>;
-  searchParams: Promise<{ sent?: string; link?: string; uploaderr?: string }>;
+  searchParams: Promise<{ sent?: string; link?: string; uploaderr?: string; mailerr?: string }>;
 }) {
   const { campaignId } = await params;
   const sp = await searchParams;
@@ -80,7 +80,12 @@ export default async function CampaignPage({
       )}
       {sp.link && (
         <div className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          <p className="font-semibold">Email not configured. Copy this link to the volunteer:</p>
+          <p className="font-semibold">
+            {sp.mailerr
+              ? "Email failed to send. Copy this link to the volunteer:"
+              : "Email not configured. Copy this link to the volunteer:"}
+          </p>
+          {sp.mailerr && <p className="mt-1 text-xs">{sp.mailerr}</p>}
           <p className="mt-1 break-all">{sp.link}</p>
         </div>
       )}

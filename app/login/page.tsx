@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; err?: string; link?: string; used?: string }>;
+  searchParams: Promise<{ sent?: string; err?: string; link?: string; used?: string; mailerr?: string }>;
 }) {
   const sp = await searchParams;
   return (
@@ -37,7 +37,10 @@ export default async function Login({
       )}
       {sp.link && (
         <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          <p className="font-semibold">Email is not configured on this install.</p>
+          <p className="font-semibold">
+            {sp.mailerr ? "Email failed to send." : "Email is not configured on this install."}
+          </p>
+          {sp.mailerr && <p className="mt-1 text-xs">{sp.mailerr}</p>}
           <p className="mt-1 break-all">{sp.link}</p>
         </div>
       )}

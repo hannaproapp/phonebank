@@ -76,9 +76,9 @@ export async function sendMemberLink(formData: FormData) {
   const link = await issueLoginLink(email, await baseUrl());
   if (!link) return;
   const res = await sendLoginEmail(email, link, campaign?.name);
-  redirect(
-    `/admin/${campaignId}?${res.sent ? "sent=" + encodeURIComponent(email) : "link=" + encodeURIComponent(link)}`,
-  );
+  if (res.sent) redirect(`/admin/${campaignId}?sent=${encodeURIComponent(email)}`);
+  const err = res.error ? `&mailerr=${encodeURIComponent(res.error)}` : "";
+  redirect(`/admin/${campaignId}?link=${encodeURIComponent(link)}${err}`);
 }
 
 export async function removeMember(formData: FormData) {
