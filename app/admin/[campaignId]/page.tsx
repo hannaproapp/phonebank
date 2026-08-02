@@ -63,7 +63,7 @@ export default async function CampaignPage({
     <Shell title={campaign.name} back={{ href: "/admin", label: "Campaigns" }}>
       {sp.uploaderr === "nocontactid" && (
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
-          That file has no Contact ID column. Add Contact ID to the Smart List view in GHL, export
+          That file has no Contact ID column. Add Contact ID to the Smart List view in HannaPro, export
           again, and re-upload.
         </p>
       )}
