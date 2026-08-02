@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer from "nodemailer";
+import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import { env } from "./env";
 
 export type SendResult = { sent: boolean; link: string; error?: string };
@@ -60,17 +61,23 @@ export async function sendLoginEmail(
   if (host && user && pass) {
     const port = Number(env("SMTP_PORT") || 465);
     try {
-      const transport = nodemailer.createTransport({
+      // `family` is a net.connect option nodemailer forwards but does not type.
+      const options: SMTPTransport.Options & { family?: number } = {
         host,
         port,
         secure: port === 465,
         auth: { user, pass },
+        // Force IPv4. Railway containers have no outbound IPv6 route, and
+        // smtp.gmail.com resolves to an AAAA record first, which fails with
+        // ENETUNREACH before any SMTP conversation happens.
+        family: 4,
         // Fail fast. Without these, a wrong host or blocked port leaves the
         // admin staring at a spinner while the request hangs for minutes.
         connectionTimeout: 10_000,
         greetingTimeout: 10_000,
         socketTimeout: 20_000,
-      });
+      };
+      const transport = nodemailer.createTransport(options);
       await transport.sendMail({
         from: env("MAIL_FROM") || user,
         to,
