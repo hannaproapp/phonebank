@@ -111,7 +111,7 @@ export default async function ListPage({
       </section>
 
       <section className="card mt-6 p-5">
-        <h2 className="font-semibold">Export to GHL</h2>
+        <h2 className="font-semibold">Export to HannaPro</h2>
         <p className="mt-1 text-sm text-slate-500">
           {stats!.pending_export} result{Number(stats!.pending_export) === 1 ? "" : "s"} not yet
           exported. {stats!.exported} already exported.
@@ -134,7 +134,7 @@ export default async function ListPage({
           <p className="mt-2 text-xs text-slate-500">
             Full Canvassing template header row. First column is{" "}
             <code className="rounded bg-slate-100 px-1">{campaign!.lookup_column}</code>, holding
-            the GHL Contact ID for the lookup. Populated columns:{" "}
+            the HannaPro Contact ID for the lookup. Populated columns:{" "}
             {EXPORT_FILLED_COLUMNS.join(", ")}. All other template columns are blank.
           </p>
         </details>
