@@ -88,6 +88,15 @@ export async function sendLoginEmail(
             { type: "text/plain", value: text },
             { type: "text/html", value: html },
           ],
+          // A login link must arrive exactly as generated. SendGrid's account-level
+          // click tracking rewrites every href through ct.sendgrid.net, which turns
+          // sign-in into a redirect that can fail. Disabled per message so no
+          // dashboard setting can break it. Open tracking off too: it adds a
+          // tracking pixel to what should be a plain transactional email.
+          tracking_settings: {
+            click_tracking: { enable: false, enable_text: false },
+            open_tracking: { enable: false },
+          },
         }),
       });
       if (res.ok) return { sent: true, link };
