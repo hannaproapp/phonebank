@@ -66,6 +66,9 @@ export async function sendLoginEmail(
         host,
         port,
         secure: port === 465,
+        // On 587 the connection starts plaintext and upgrades; insist on it
+        // rather than silently sending credentials in the clear.
+        requireTLS: port !== 465,
         auth: { user, pass },
         // Force IPv4. Railway containers have no outbound IPv6 route, and
         // smtp.gmail.com resolves to an AAAA record first, which fails with
