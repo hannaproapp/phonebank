@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { q } from "@/lib/db";
 import { Shell } from "../components/Shell";
+import { q1 } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +31,27 @@ export default async function CallHome() {
     [user.id],
   );
 
+  // An admin who assigned themselves a block lands here with no way back.
+  const isAdmin =
+    user.is_super ||
+    Boolean(
+      await q1(
+        `select 1 from campaign_members where user_id = $1 and role = 'admin' limit 1`,
+        [user.id],
+      ),
+    );
+
   return (
-    <Shell title={`Hi ${user.name?.split(" ")[0] || "there"}`}>
+    <Shell
+      title={`Hi ${user.name?.split(" ")[0] || "there"}`}
+      right={
+        isAdmin ? (
+          <Link href="/admin" className="btn" style={{ padding: "6px 12px", fontSize: 14 }}>
+            Admin
+          </Link>
+        ) : undefined
+      }
+    >
       <p className="-mt-3 mb-5 text-sm text-slate-500">
         {lists.some((l) => Number(l.remaining) > 0)
           ? "Tap a list to start calling."
