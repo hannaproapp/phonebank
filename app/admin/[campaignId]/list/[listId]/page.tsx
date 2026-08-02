@@ -14,7 +14,13 @@ export default async function ListPage({
   searchParams,
 }: {
   params: Promise<{ campaignId: string; listId: string }>;
-  searchParams: Promise<{ loaded?: string; nophone?: string; noid?: string }>;
+  searchParams: Promise<{
+    loaded?: string;
+    nophone?: string;
+    noid?: string;
+    delerr?: string;
+    n?: string;
+  }>;
 }) {
   const { campaignId, listId } = await params;
   const sp = await searchParams;
@@ -224,9 +230,32 @@ export default async function ListPage({
             Save
           </button>
         </form>
-        <form method="post" action="/api/do" className="mt-3">
+        <form method="post" action="/api/do" className="mt-6 space-y-2 border-t border-slate-200 pt-4">
           <input type="hidden" name="op" value="deleteList" />
           <input type="hidden" name="list_id" value={listId} />
+          <h3 className="label">Delete this list</h3>
+          <p className="text-xs text-slate-500">
+            Removes the contacts and every call result, for good. Deactivating above is
+            almost always what you want instead. Blocked while any result has not been
+            exported.
+          </p>
+          {sp.delerr === "unexported" && (
+            <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+              Not deleted. {sp.n} result{sp.n === "1" ? "" : "s"} have never been exported.
+              Download them first, then try again.
+            </p>
+          )}
+          {sp.delerr === "name" && (
+            <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+              Not deleted. The name did not match.
+            </p>
+          )}
+          <input
+            className="input"
+            name="confirm_name"
+            autoComplete="off"
+            placeholder={`Type ${list.name} to confirm`}
+          />
           <button className="btn text-sm text-red-600">Delete list and all results</button>
         </form>
       </details>
