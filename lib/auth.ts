@@ -93,7 +93,7 @@ export async function issueLoginLink(email: string, baseUrl: string) {
   if (!user) return null;
   const token = makeToken();
   await q(
-    `insert into login_tokens (token, user_id, expires_at) values ($1, $2, now() + interval '30 days')`,
+    `insert into login_tokens (token, user_id, expires_at) values ($1, $2, now() + interval '14 days')`,
     [token, user.id],
   );
   return `${baseUrl.replace(/\/$/, "")}/auth/${token}`;

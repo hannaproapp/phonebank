@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; err?: string; link?: string }>;
+  searchParams: Promise<{ sent?: string; err?: string; link?: string; used?: string }>;
 }) {
   const sp = await searchParams;
   return (
@@ -40,6 +40,12 @@ export default async function Login({
           <p className="font-semibold">Email is not configured on this install.</p>
           <p className="mt-1 break-all">{sp.link}</p>
         </div>
+      )}
+      {sp.used === "1" && (
+        <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+          That link has already been used or has expired. Links work once. Enter your email
+          above to get a fresh one.
+        </p>
       )}
       {sp.err && (
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
