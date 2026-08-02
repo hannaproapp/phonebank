@@ -65,6 +65,11 @@ export async function sendLoginEmail(
         port,
         secure: port === 465,
         auth: { user, pass },
+        // Fail fast. Without these, a wrong host or blocked port leaves the
+        // admin staring at a spinner while the request hangs for minutes.
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 20_000,
       });
       await transport.sendMail({
         from: env("MAIL_FROM") || user,
