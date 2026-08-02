@@ -272,6 +272,27 @@ async function deleteList(fd: FormData) {
   const listId = str(fd, "list_id");
   const campaignId = await listCampaign(listId);
   await requireCampaignAdmin(user, campaignId);
+
+  // Deleting cascades to contacts and call_results, so a stray click used to
+  // destroy a night of calling. Two guards, both enforced here rather than in
+  // the browser: results that have never been exported exist nowhere else, and
+  // the name has to be typed out.
+  const list = await q1<{ name: string }>(`select name from lists where id=$1`, [listId]);
+  if (!list) return `/admin/${campaignId}`;
+
+  const pending = await q1<{ n: string }>(
+    `select count(*) as n from call_results where list_id=$1 and exported_at is null`,
+    [listId],
+  );
+  if (Number(pending?.n ?? 0) > 0) {
+    return `/admin/${campaignId}/list/${listId}?delerr=unexported&n=${pending!.n}`;
+  }
+
+  const typed = str(fd, "confirm_name").trim();
+  if (typed !== list.name.trim()) {
+    return `/admin/${campaignId}/list/${listId}?delerr=name`;
+  }
+
   await q(`delete from lists where id=$1`, [listId]);
   return `/admin/${campaignId}`;
 }
