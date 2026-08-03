@@ -216,7 +216,7 @@ async function createList(fd: FormData) {
       const chunk = parsed.rows.slice(i, i + CHUNK);
       const values: unknown[] = [];
       const placeholders = chunk.map((r, j) => {
-        const b = j * 9;
+        const b = j * 13;
         values.push(
           list!.id,
           r.ghl_contact_id,
@@ -225,13 +225,18 @@ async function createList(fd: FormData) {
           r.last_name,
           r.phone,
           r.city,
+          r.full_address,
+          r.vote_segment,
+          r.vote_propensity,
+          r.primary_flag,
           JSON.stringify(r.extra),
           i + j + 1,
         );
-        return `($${b + 1},$${b + 2},$${b + 3},$${b + 4},$${b + 5},$${b + 6},$${b + 7},$${b + 8},$${b + 9})`;
+        return `(${b + 1},${b + 2},${b + 3},${b + 4},${b + 5},${b + 6},${b + 7},${b + 8},${b + 9},${b + 10},${b + 11},${b + 12},${b + 13})`;
       });
       await client.query(
-        `insert into contacts (list_id, ghl_contact_id, voter_id, first_name, last_name, phone, city, extra, row_no)
+        `insert into contacts (list_id, ghl_contact_id, voter_id, first_name, last_name, phone, city,
+                               full_address, vote_segment, vote_propensity, primary_flag, extra, row_no)
          values ${placeholders.join(",")}`,
         values,
       );
