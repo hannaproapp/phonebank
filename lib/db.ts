@@ -103,6 +103,13 @@ create table if not exists login_tokens (
   expires_at timestamptz not null,
   used_at timestamptz
 );
+
+-- Added after the first deploys, so these are alters rather than columns on the
+-- create above. Shown to the caller on the contact card before they dial.
+alter table contacts add column if not exists full_address text not null default '';
+alter table contacts add column if not exists vote_segment text not null default '';
+alter table contacts add column if not exists vote_propensity text not null default '';
+alter table contacts add column if not exists primary_flag text not null default '';
 `;
 
 export async function migrate() {
