@@ -206,7 +206,9 @@ export default async function ListPage({
         </form>
       </section>
 
-      <details className="mt-8">
+      {/* Open by default. Pausing a list is routine work, and an admin should
+          not have to go hunting for it inside a collapsed section. */}
+      <details className="mt-8" open>
         <summary className="label cursor-pointer">List settings</summary>
         <form method="post" action="/api/do" className="card mt-3 space-y-4 p-5">
           <input type="hidden" name="op" value="updateList" />
