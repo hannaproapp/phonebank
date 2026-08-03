@@ -72,9 +72,15 @@ export default async function CampaignPage({
           again, and re-upload.
         </p>
       )}
+      {sp.uploaderr === "novoterid" && (
+        <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          That file has no State Voter ID column. Add it to the Smart List view in HannaPro,
+          export again, and re-upload.
+        </p>
+      )}
       {sp.uploaderr === "norows" && (
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
-          No usable rows. Every row needs a Contact ID and a phone number.
+          No usable rows. Every row needs a Contact ID, a State Voter ID, and a phone number.
         </p>
       )}
       {sp.link && (
@@ -140,7 +146,7 @@ export default async function CampaignPage({
         </Field>
         <Field
           label="CSV export from the Smart List"
-          hint="Must include a Contact ID column and a phone column. Rows without both are skipped."
+          hint="Must include a Contact ID, a State Voter ID, and a phone column. Rows missing any of the three are skipped."
         >
           <input className="input" type="file" name="file" accept=".csv,text/csv" required />
         </Field>
