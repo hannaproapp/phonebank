@@ -232,7 +232,7 @@ async function createList(fd: FormData) {
           JSON.stringify(r.extra),
           i + j + 1,
         );
-        return `(${b + 1},${b + 2},${b + 3},${b + 4},${b + 5},${b + 6},${b + 7},${b + 8},${b + 9},${b + 10},${b + 11},${b + 12},${b + 13})`;
+        return `($${b + 1},$${b + 2},$${b + 3},$${b + 4},$${b + 5},$${b + 6},$${b + 7},$${b + 8},$${b + 9},$${b + 10},$${b + 11},$${b + 12},$${b + 13})`;
       });
       await client.query(
         `insert into contacts (list_id, ghl_contact_id, voter_id, first_name, last_name, phone, city,
