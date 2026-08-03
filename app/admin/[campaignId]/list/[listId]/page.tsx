@@ -18,6 +18,7 @@ export default async function ListPage({
     loaded?: string;
     nophone?: string;
     noid?: string;
+    novoter?: string;
     delerr?: string;
     n?: string;
   }>;
@@ -98,6 +99,7 @@ export default async function ListPage({
           Loaded {sp.loaded} contacts.
           {Number(sp.nophone) > 0 && <> Skipped {sp.nophone} with no phone number.</>}
           {Number(sp.noid) > 0 && <> Skipped {sp.noid} with no Contact ID.</>}
+          {Number(sp.novoter) > 0 && <> Skipped {sp.novoter} with no State Voter ID.</>}
         </p>
       )}
 
