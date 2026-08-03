@@ -30,7 +30,7 @@ export async function GET(
   const rows = await q<any>(
     `select r.id, r.disposition, r.candidate_awareness, r.support_level, r.vote_plan,
             r.phone_correct, r.new_phone, r.notes, r.created_at,
-            c.ghl_contact_id, c.first_name, c.last_name,
+            c.ghl_contact_id, c.voter_id, c.first_name, c.last_name,
             u.name as volunteer_name, u.email as volunteer_email
      from call_results r
      join contacts c on c.id = r.contact_id
@@ -42,6 +42,7 @@ export async function GET(
 
   const exportRows: ExportRow[] = rows.map((r) => ({
     ghl_contact_id: r.ghl_contact_id,
+    voter_id: r.voter_id ?? "",
     first_name: r.first_name,
     last_name: r.last_name,
     disposition: r.disposition,
