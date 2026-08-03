@@ -251,14 +251,14 @@ export default async function ListPage({
           )}
           {sp.delerr === "name" && (
             <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-              Not deleted. The name did not match.
+              Not deleted. Type the word delete to confirm.
             </p>
           )}
           <input
             className="input"
             name="confirm_name"
             autoComplete="off"
-            placeholder={`Type ${list.name} to confirm`}
+            placeholder="Type delete to confirm"
           />
           <button className="btn text-sm text-red-600">Delete list and all results</button>
         </form>
