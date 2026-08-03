@@ -200,6 +200,7 @@ async function createList(fd: FormData) {
 
   const parsed = parseContactCsv(await file.text());
   if (!parsed.mapping.ghl_contact_id) return `/admin/${campaignId}?uploaderr=nocontactid`;
+  if (!parsed.mapping.voter_id) return `/admin/${campaignId}?uploaderr=novoterid`;
   if (parsed.rows.length === 0) return `/admin/${campaignId}?uploaderr=norows`;
 
   const list = await q1<{ id: string }>(
@@ -243,7 +244,7 @@ async function createList(fd: FormData) {
     client.release();
   }
 
-  return `/admin/${campaignId}/list/${list!.id}?loaded=${parsed.rows.length}&nophone=${parsed.skippedNoPhone}&noid=${parsed.skippedNoContactId}`;
+  return `/admin/${campaignId}/list/${list!.id}?loaded=${parsed.rows.length}&nophone=${parsed.skippedNoPhone}&noid=${parsed.skippedNoContactId}&novoter=${parsed.skippedNoVoterId}`;
 }
 
 async function listCampaign(listId: string) {
