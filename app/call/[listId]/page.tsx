@@ -44,8 +44,13 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
     phone: string;
     city: string;
     voter_id: string;
+    full_address: string;
+    vote_segment: string;
+    vote_propensity: string;
+    primary_flag: string;
   }>(
-    `select id, first_name, last_name, phone, city, voter_id
+    `select id, first_name, last_name, phone, city, voter_id,
+            full_address, vote_segment, vote_propensity, primary_flag
      from contacts
      where list_id = $1 and assigned_user_id = $2 and status = 'open'
      order by row_no limit 1`,
@@ -72,6 +77,12 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
 
   const name = `${contact.first_name} ${contact.last_name}`.trim() || "Voter";
 
+  // Source files spell the flag a dozen ways. Treat anything present as a yes
+  // unless it is explicitly negative, so a "Y" or a "1" still shows the badge.
+  const primaryRaw = (contact.primary_flag || "").trim();
+  const isPrimaryVoter =
+    primaryRaw !== "" && !/^(n|no|false|0|none)$/i.test(primaryRaw);
+
   return (
     <Shell title={list.name} back={{ href: "/call", label: "My lists" }}>
       <p className="-mt-3 mb-4 text-sm text-slate-500">
@@ -80,7 +91,40 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
 
       <section className="card p-5">
         <div className="text-xl font-bold">{name}</div>
-        {contact.city && <div className="text-sm text-slate-500">{contact.city}</div>}
+        {(contact.full_address || contact.city) && (
+          <div className="mt-0.5 text-sm text-slate-500">
+            {contact.full_address || contact.city}
+          </div>
+        )}
+
+        {/* Read before dialling, not after: how this voter is likely to behave
+            changes how the call should open. */}
+        {(contact.vote_segment || contact.vote_propensity || isPrimaryVoter) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {contact.vote_segment && (
+              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                {contact.vote_segment}
+              </span>
+            )}
+            {contact.vote_propensity && (
+              <span
+                className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                  /^h/i.test(contact.vote_propensity)
+                    ? "bg-green-100 text-green-800"
+                    : "bg-amber-100 text-amber-900"
+                }`}
+              >
+                {contact.vote_propensity} propensity
+              </span>
+            )}
+            {isPrimaryVoter && (
+              <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                Primary voter
+              </span>
+            )}
+          </div>
+        )}
+
         <a href={telHref(contact.phone)} className="btn btn-primary btn-lg mt-4">
           Call {prettyPhone(contact.phone)}
         </a>
