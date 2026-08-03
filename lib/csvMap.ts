@@ -9,6 +9,13 @@ const ALIASES: Record<string, string[]> = {
   last_name: ["lastname", "last", "lname", "surname", "familyname"],
   phone: ["phone", "phonenumber", "primaryphone", "cell", "cellphone", "mobile", "homephone"],
   city: ["city", "town", "municipality"],
+  // Shown to the caller before they dial so they can plan the conversation.
+  // norm() strips case, spaces and punctuation, so "Full Address", "full_address"
+  // and "FullAddress" all land on the same alias.
+  full_address: ["fulladdress", "address", "streetaddress", "mailingaddress", "residentialaddress"],
+  vote_segment: ["votesegment", "segment", "votersegment", "turnoutsegment"],
+  vote_propensity: ["votepropensity", "propensity", "voterpropensity", "turnoutpropensity"],
+  primary_flag: ["primaryflag", "primary", "primaryvoter", "isprimary", "primaryelection"],
 };
 
 export type ParsedList = {
@@ -21,6 +28,10 @@ export type ParsedList = {
     last_name: string;
     phone: string;
     city: string;
+    full_address: string;
+    vote_segment: string;
+    vote_propensity: string;
+    primary_flag: string;
     extra: Record<string, string>;
   }[];
   skippedNoContactId: number;
@@ -79,6 +90,10 @@ export function parseContactCsv(text: string): ParsedList {
       last_name: get("last_name"),
       phone,
       city: get("city"),
+      full_address: get("full_address"),
+      vote_segment: get("vote_segment"),
+      vote_propensity: get("vote_propensity"),
+      primary_flag: get("primary_flag"),
       extra,
     });
   }
