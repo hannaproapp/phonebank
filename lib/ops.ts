@@ -283,7 +283,7 @@ async function deleteList(fd: FormData) {
   // destroy a night of calling. Two guards, both enforced here rather than in
   // the browser: results that have never been exported exist nowhere else, and
   // the name has to be typed out.
-  const list = await q1<{ name: string }>(`select name from lists where id=$1`, [listId]);
+  const list = await q1<{ id: string }>(`select id from lists where id=$1`, [listId]);
   if (!list) return `/admin/${campaignId}`;
 
   const pending = await q1<{ n: string }>(
@@ -294,8 +294,8 @@ async function deleteList(fd: FormData) {
     return `/admin/${campaignId}/list/${listId}?delerr=unexported&n=${pending!.n}`;
   }
 
-  const typed = str(fd, "confirm_name").trim();
-  if (typed !== list.name.trim()) {
+  const typed = str(fd, "confirm_name").trim().toLowerCase();
+  if (typed !== "delete") {
     return `/admin/${campaignId}/list/${listId}?delerr=name`;
   }
 
