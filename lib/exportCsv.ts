@@ -25,8 +25,17 @@ function fmtDateTime(d: Date) {
   return `${date} ${time}`;
 }
 
+/**
+ * Canvassing field holding the state voter ID. Written next to the Contacts
+ * lookup so both identifiers sit at the front of the file: the lookup column is
+ * what GHL matches a record to a contact on, this is what a human reconciles
+ * against the voter file.
+ */
+export const VOTER_ID_COLUMN = "State Voter ID";
+
 export type ExportRow = {
   ghl_contact_id: string;
+  voter_id: string;
   first_name: string;
   last_name: string;
   disposition: string;
@@ -55,7 +64,11 @@ function csvEscape(v: string) {
  * mapping stays 1:1 by header name.
  */
 export function buildCanvassingCsv(rows: ExportRow[], lookupColumn: string) {
-  const headers = [lookupColumn, ...TEMPLATE_HEADERS];
+  const headers = [
+    lookupColumn,
+    VOTER_ID_COLUMN,
+    ...TEMPLATE_HEADERS.filter((h) => h !== VOTER_ID_COLUMN),
+  ];
   const lines = [headers.map(csvEscape).join(",")];
 
   for (const r of rows) {
@@ -63,6 +76,7 @@ export function buildCanvassingCsv(rows: ExportRow[], lookupColumn: string) {
     const name = `${r.last_name}, ${r.first_name}`.replace(/^, |, $/g, "").trim();
     const values: Record<string, string> = {
       [lookupColumn]: r.ghl_contact_id,
+      [VOTER_ID_COLUMN]: r.voter_id,
       "Canvass Attempt Name": `Phone - ${name || r.ghl_contact_id} - ${fmtDate(r.created_at)}`,
       "Contact Method": "Phone",
       "Purpose of Contact": "Voter ID & Commitment",
@@ -88,6 +102,7 @@ export function buildCanvassingCsv(rows: ExportRow[], lookupColumn: string) {
 }
 
 export const EXPORT_FILLED_COLUMNS = [
+  VOTER_ID_COLUMN,
   "Canvass Attempt Name",
   "Contact Method",
   "Purpose of Contact",
