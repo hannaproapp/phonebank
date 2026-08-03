@@ -77,11 +77,9 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
 
   const name = `${contact.first_name} ${contact.last_name}`.trim() || "Voter";
 
-  // Source files spell the flag a dozen ways. Treat anything present as a yes
-  // unless it is explicitly negative, so a "Y" or a "1" still shows the badge.
-  const primaryRaw = (contact.primary_flag || "").trim();
-  const isPrimaryVoter =
-    primaryRaw !== "" && !/^(n|no|false|0|none)$/i.test(primaryRaw);
+  // Shown verbatim. The source value is Yes, No, or empty, and "No" is real
+  // information to a caller, so it is displayed rather than treated as absent.
+  const primaryFlag = (contact.primary_flag || "").trim();
 
   return (
     <Shell title={list.name} back={{ href: "/call", label: "My lists" }}>
@@ -99,7 +97,7 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
 
         {/* Read before dialling, not after: how this voter is likely to behave
             changes how the call should open. */}
-        {(contact.vote_segment || contact.vote_propensity || isPrimaryVoter) && (
+        {(contact.vote_segment || contact.vote_propensity || primaryFlag) && (
           <div className="mt-3 flex flex-wrap gap-2">
             {contact.vote_segment && (
               <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
@@ -117,9 +115,15 @@ export default async function CallList({ params }: { params: Promise<{ listId: s
                 {contact.vote_propensity} propensity
               </span>
             )}
-            {isPrimaryVoter && (
-              <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                Primary voter
+            {primaryFlag && (
+              <span
+                className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                  /^y/i.test(primaryFlag)
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-slate-100 text-slate-700"
+                }`}
+              >
+                Primary: {primaryFlag}
               </span>
             )}
           </div>
