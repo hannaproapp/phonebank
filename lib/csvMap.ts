@@ -25,6 +25,7 @@ export type ParsedList = {
   }[];
   skippedNoContactId: number;
   skippedNoPhone: number;
+  skippedNoVoterId: number;
 };
 
 export function parseContactCsv(text: string): ParsedList {
@@ -43,13 +44,21 @@ export function parseContactCsv(text: string): ParsedList {
   const rows: ParsedList["rows"] = [];
   let skippedNoContactId = 0;
   let skippedNoPhone = 0;
+  let skippedNoVoterId = 0;
 
   for (const r of parsed.data) {
     const get = (f: string) => (mapping[f] ? String(r[mapping[f]!] ?? "").trim() : "");
     const ghl = get("ghl_contact_id");
+    const voterId = get("voter_id");
     const phone = get("phone").replace(/[^\d+]/g, "");
     if (!ghl) {
       skippedNoContactId++;
+      continue;
+    }
+    // The state voter ID is what a canvassing record is reconciled against, so a
+    // row without one produces a result that cannot be matched back to a voter.
+    if (!voterId) {
+      skippedNoVoterId++;
       continue;
     }
     if (!phone) {
@@ -65,7 +74,7 @@ export function parseContactCsv(text: string): ParsedList {
     }
     rows.push({
       ghl_contact_id: ghl,
-      voter_id: get("voter_id"),
+      voter_id: voterId,
       first_name: get("first_name"),
       last_name: get("last_name"),
       phone,
@@ -74,7 +83,7 @@ export function parseContactCsv(text: string): ParsedList {
     });
   }
 
-  return { headers, mapping, rows, skippedNoContactId, skippedNoPhone };
+  return { headers, mapping, rows, skippedNoContactId, skippedNoPhone, skippedNoVoterId };
 }
 
 export function telHref(phone: string) {
